@@ -1,6 +1,8 @@
 import pathlib
 
 from camek.exceptions import CamekError as CamekError
+import camek.logging as camek_logging
+module_logger = camek_logging.get_logger(__name__)
 import camek.appengine.configurator.configurator as configurator
 import camek.appengine.io.iofile as iofile
 #import camek.appengine.io.iodevice as iodevice
@@ -28,7 +30,9 @@ class AppEngine():
         #    self.audio_in = iofile.AppEngineInputDevice(self.conf['isrc'])
         else:
             # critical error
-            raise CamekError(f"Unexpected input source type: {self.conf['isrc']['type']}")
+            msg = f"Unexpected input source type: {self.conf['isrc']['type']}"
+            module_logger.critical(msg)
+            raise CamekError(msg)
 
         if self.conf['osnk']['type'] == 'file':
             self.audio_out = iofile.AppEngineOutputEntireFile(self.conf['osnk'])
@@ -38,5 +42,6 @@ class AppEngine():
         #    self.audio_out = iofile.AppEngineOutputDevice(self.conf['osnk'])
         else:
             # critical error
-            raise CamekError(f"Unexpected output sink type: {self.conf['osnk']['type']}")
-        
+            msg = f"Unexpected output sink type: {self.conf['osnk']['type']}"
+            module_logger.critical(msg)
+            raise CamekError(msg)
