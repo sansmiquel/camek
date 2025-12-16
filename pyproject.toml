@@ -4,7 +4,6 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "camek"
-description = "Custom Audio Modules Engine Kit"
 authors = [
   { name="Miquel Sans", email="dev@msans.ch" },
 ]
