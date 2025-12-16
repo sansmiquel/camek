@@ -1,0 +1,31 @@
+[build-system]
+requires = ["flit_core >=3.11,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "camek"
+description = "Custom Audio Modules Engine Kit"
+authors = [
+  { name="Miquel Sans", email="dev@msans.ch" },
+]
+readme = "README.md"
+#license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+requires-python = ">=3.14.0"
+dynamic = ["version", "description"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    ]
+[project.optional-dependencies]
+test = [
+  ]
+[project.scripts]
+camek = "camek.cli:run"
+[project.urls]
+homepage = "https://gitlab.com/msans/camek"
+repository = "https://github.com/sansmiquel/camek"
