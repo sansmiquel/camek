@@ -8,25 +8,25 @@ def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-a', '--audio-processor',
-        help='Audio processor configuration file.',
-        dest='aproc_conf',
+        '-p', '--proc-config',
+        help='Audio application engine processing configuration file.',
+        dest='proc_conf',
         required=True,
         default=None,
         action='store',
 	)
 
     parser.add_argument(
-        '-i', '--input-source',
-        help='Input source configuration file.',
+        '-i', '--in-config',
+        help='Audio application engine input source configuration file.',
         dest='isrc_conf',
         required=True,
         default=None,
         action='store',
 	)
     parser.add_argument(
-        '-o', '--output-sink',
-        help='Output sink configuration file.',
+        '-o', '--out-config',
+        help='Audio application engine output sink configuration file.',
         dest='osnk_conf',
         required=True,
         default=None,
@@ -58,7 +58,7 @@ def run() -> int:
 
     try:
         main(
-            aproc_conf=args.aproc_conf,
+            proc_conf=args.proc_conf,
             isrc_conf=args.isrc_conf,
             osnk_conf=args.osnk_conf,
             verbosity_level_console=args.verbosity_level_console,
@@ -66,8 +66,6 @@ def run() -> int:
             )
     except CamekError as e:
         return 1
-    return 0
-
     return 0
 
 if __name__ == "__main__":

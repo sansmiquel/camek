@@ -19,10 +19,12 @@ classifiers = [
 ]
 
 dependencies = [
+    "tomli",
+    "numpy",
+    "soundfile",
     ]
 [project.optional-dependencies]
-test = [
-  ]
+test = []
 [project.scripts]
 camek = "camek.cli:run"
 [project.urls]

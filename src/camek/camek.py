@@ -10,9 +10,6 @@ import time
 userconfig = pathlib.Path.home().joinpath('.config','camek')  # workspace path
 workspace = pathlib.Path.home().joinpath('.camek')  # workspace path
 
-# Exceptions
-from camek.exceptions import CamekError as CamekError
-
 ## logging
 import camek.logging as camek_logging
 log_path = workspace.joinpath(workspace,'log')
@@ -21,7 +18,7 @@ module_logger = camek_logging.get_logger(__name__)
 
 # -------------------------------------------------------------------------
 def main(
-        aproc_conf: str, 
+        proc_conf: str, 
         isrc_conf: str, 
         osnk_conf: str, 
         verbosity_level_console: str='warning',
@@ -41,11 +38,22 @@ def main(
         verbosity_level_file=verbosity_level_file,
         log_path=log_path,
         )
-  
+    
     msg = "Processing aborted due to previous error(s)."
     start_time = time.time()
-    
-    # FIXME
+    from camek.exceptions import CamekError as CamekError
+    from camek.appengine.appengine import AppEngine as AppEngine
+    try:
+        AppEngine(
+            proc_conf=pathlib.Path(proc_conf),
+            isrc_conf=pathlib.Path(isrc_conf),
+            osnk_conf=pathlib.Path(osnk_conf),
+            )
+    except CamekError as e:
+        module_logger.critical(msg)
+        msg = "audioprocessor finished with error(s) in %s seconds." % (time.time() - start_time)
+        module_logger.info(msg)
+        raise e
 
     msg = "camek finished successfully in %s seconds." % (time.time() - start_time)
     module_logger.info(msg)

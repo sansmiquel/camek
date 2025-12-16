@@ -1,7 +1,11 @@
 class CamekException(Exception):
-    """Base exception for Camek """
+    """Base exception"""
     pass   
 
 class CamekError(CamekException):
-    """Exception for errors in CamekError"""
+    """Exception for errors"""
+    pass
+
+class CamekFileIOError(CamekError):
+    """Exception for file I/O errors"""
     pass
