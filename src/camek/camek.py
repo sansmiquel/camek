@@ -22,22 +22,21 @@ log_path = workspace.joinpath(workspace,'log')
 # -------------------------------------------------------------------------
 # main 
 
-# def main(
-#         aproc_conf: str, 
-#         isrc_conf: str, 
-#         osnk_conf_: str, 
-#         verbosity_level: str='warning',
-#         ) -> None:
-def main() -> None:
+def main(
+        aproc_conf: str, 
+        isrc_conf: str, 
+        osnk_conf: str, 
+        verbosity_level: str='warning',
+        ) -> None:
 
     start_time = time.time()
 
-    # try:
-    #     log_path.mkdir(parents=True,exist_ok=True)
-    # except FileExistsError as e:
-    #     msg = f"{log_path}: cannot be used for logging: {e}"
-    #     print(msg)
-    #     return 1    
+    try:
+        log_path.mkdir(parents=True,exist_ok=True)
+    except FileExistsError as e:
+        msg = f"{log_path}: cannot be used for logging: {e}"
+        print(msg)
+        return 1    
     
     #camek_logging.configure(main_logger=main_logger, verbosity_level=verbosity_level, log_path=log_path)
   

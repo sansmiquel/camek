@@ -46,17 +46,16 @@ def parse_args() -> argparse.Namespace:
 def run() -> int:
     args = parse_args()
 
-    main()
-    # try:
-    #     main(
-    #         aproc_conf=args.aproc_conf,
-    #         isrc_conf=args.isrc_conf,
-    #         osnk_conf=args.osnk_conf,
-    #         verbosity_level=args.verbosity_level,
-    #         )
-    # except CamekError as e:
-    #     return 1
-    # return 0
+    try:
+        main(
+            aproc_conf=args.aproc_conf,
+            isrc_conf=args.isrc_conf,
+            osnk_conf=args.osnk_conf,
+            verbosity_level=args.verbosity_level,
+            )
+    except CamekError as e:
+        return 1
+    return 0
 
     return 0
 
