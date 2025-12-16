@@ -10,38 +10,42 @@ import camek.appengine.io.iofile as iofile
 class AppEngine():
     def __init__(self, proc_conf: pathlib.Path, isrc_conf: pathlib.Path, osnk_conf: pathlib.Path):
         self.conf = dict()
-        self.conf_paths = {
+        self.conf['configfiles'] = {
             'proc': proc_conf.absolute(),  # processor configuration
             'isrc': isrc_conf.absolute(),  # input source configuration
             'osnk': osnk_conf.absolute(),  # output sink configuration
         }
-        proc_configurator = configurator.ProcessingConfigurator(self.conf_paths['proc'])
-        self.conf['proc'] = proc_configurator.get()
+        self.conf['configurations'] = {}
         
-        for k in {'isrc','osnk'}:
-            io_configurator = configurator.IOConfigurator(self.conf_paths[k])
-            self.conf[k] = io_configurator.get()
-        #
-        if self.conf['isrc']['type'] == 'file':
-            self.audio_in = iofile.AppEngineInputEntireFile(self.conf['isrc'])
-        elif self.conf['isrc']['type'] == 'chunkedfile':
-            self.audio_in = iofile.AppEngineInputChunkedFile(self.conf['isrc'])
-        #elif self.conf['isrc']['type'] == 'device':
-        #    self.audio_in = iofile.AppEngineInputDevice(self.conf['isrc'])
-        else:
-            # critical error
-            msg = f"Unexpected input source type: {self.conf['isrc']['type']}"
-            module_logger.critical(msg)
-            raise CamekError(msg)
+        for k in self.conf['configfiles'].keys():
+            self.conf['configurations'][k] = configurator.get_conf(self.conf['configfiles'][k])
 
-        if self.conf['osnk']['type'] == 'file':
-            self.audio_out = iofile.AppEngineOutputEntireFile(self.conf['osnk'])
-        elif self.conf['osnk']['type'] == 'chunkedfile':
-            self.audio_out = iofile.AppEngineOutputChunkedFile(self.conf['osnk'])
-        #elif self.conf['osnk']['type'] == 'device':
-        #    self.audio_out = iofile.AppEngineOutputDevice(self.conf['osnk'])
-        else:
-            # critical error
-            msg = f"Unexpected output sink type: {self.conf['osnk']['type']}"
-            module_logger.critical(msg)
-            raise CamekError(msg)
+        self.conf['app'] = {}
+        configurator.get_submodules_conf(
+            conf=self.conf['app'],
+            submodules_list=self.conf['configurations']['proc']['_submodules'],
+            conf_relpath=self.conf['configurations']['proc']['_conf_relpath'])
+        pass
+        # if self.conf['isrc']['type'] == 'file':
+        #     self.audio_in = iofile.AppEngineInputEntireFile(self.conf['configurations'])
+        # elif self.conf['isrc']['type'] == 'chunkedfile':
+        #     self.audio_in = iofile.AppEngineInputChunkedFile(self.conf['isrc'])
+        # #elif self.conf['isrc']['type'] == 'device':
+        # #    self.audio_in = iofile.AppEngineInputDevice(self.conf['isrc'])
+        # else:
+        #     # critical error
+        #     msg = f"Unexpected input source type: {self.conf['isrc']['type']}"
+        #     module_logger.critical(msg)
+        #     raise CamekError(msg)
+
+        # if self.conf['osnk']['type'] == 'file':
+        #     self.audio_out = iofile.AppEngineOutputEntireFile(self.conf['osnk'])
+        # elif self.conf['osnk']['type'] == 'chunkedfile':
+        #     self.audio_out = iofile.AppEngineOutputChunkedFile(self.conf['osnk'])
+        # #elif self.conf['osnk']['type'] == 'device':
+        # #    self.audio_out = iofile.AppEngineOutputDevice(self.conf['osnk'])
+        # else:
+        #     # critical error
+        #     msg = f"Unexpected output sink type: {self.conf['osnk']['type']}"
+        #     module_logger.critical(msg)
+        #     raise CamekError(msg)
