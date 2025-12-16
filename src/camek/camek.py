@@ -7,15 +7,15 @@ import datetime
 import time
 
 ## paths
-#userconfig = pathlib.Path.home().joinpath('.config','camek')  # workspace path
-#workspace = pathlib.Path.home().joinpath('.camek')  # workspace path
+userconfig = pathlib.Path.home().joinpath('.config','camek')  # workspace path
+workspace = pathlib.Path.home().joinpath('.camek')  # workspace path
 
 # Exceptions
 from camek.exceptions import CamekError as CamekError
 
 ## logging
 #import camek.logging as camek_logging
-#log_path = workspace.joinpath(workspace,'log')
+log_path = workspace.joinpath(workspace,'log')
 #main_logger = camek_logging.get_logger()
 #module_logger = camek_logging.get_logger(__name__)
 
@@ -30,7 +30,7 @@ from camek.exceptions import CamekError as CamekError
 #         ) -> None:
 def main() -> None:
 
-    #start_time = time.time()
+    start_time = time.time()
 
     # try:
     #     log_path.mkdir(parents=True,exist_ok=True)
@@ -41,11 +41,11 @@ def main() -> None:
     
     #camek_logging.configure(main_logger=main_logger, verbosity_level=verbosity_level, log_path=log_path)
   
-    #msg = "Processing aborted due to previous error(s)."
+    msg = "Processing aborted due to previous error(s)."
     
     # FIXME
 
-    #msg = "camek finished successfully in %s seconds." % (time.time() - start_time)
+    msg = "camek finished successfully in %s seconds." % (time.time() - start_time)
     #module_logger.info(msg)
     
     return None
