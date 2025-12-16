@@ -14,23 +14,20 @@ workspace = pathlib.Path.home().joinpath('.camek')  # workspace path
 from camek.exceptions import CamekError as CamekError
 
 ## logging
-#import camek.logging as camek_logging
+import camek.logging as camek_logging
 log_path = workspace.joinpath(workspace,'log')
-#main_logger = camek_logging.get_logger()
-#module_logger = camek_logging.get_logger(__name__)
+main_logger = camek_logging.get_logger()
+module_logger = camek_logging.get_logger(__name__)
 
 # -------------------------------------------------------------------------
-# main 
-
 def main(
         aproc_conf: str, 
         isrc_conf: str, 
         osnk_conf: str, 
-        verbosity_level: str='warning',
+        verbosity_level_console: str='warning',
+        verbosity_level_file: str='info',
         ) -> None:
-
-    start_time = time.time()
-
+    """Main function for camek application."""
     try:
         log_path.mkdir(parents=True,exist_ok=True)
     except FileExistsError as e:
@@ -38,13 +35,19 @@ def main(
         print(msg)
         return 1    
     
-    #camek_logging.configure(main_logger=main_logger, verbosity_level=verbosity_level, log_path=log_path)
+    camek_logging.configure(
+        main_logger=main_logger,
+        verbosity_level_console=verbosity_level_console,
+        verbosity_level_file=verbosity_level_file,
+        log_path=log_path,
+        )
   
     msg = "Processing aborted due to previous error(s)."
+    start_time = time.time()
     
     # FIXME
 
     msg = "camek finished successfully in %s seconds." % (time.time() - start_time)
-    #module_logger.info(msg)
+    module_logger.info(msg)
     
     return None

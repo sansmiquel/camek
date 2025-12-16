@@ -5,7 +5,7 @@ from camek.camek import main
 from camek.exceptions import CamekError as CamekError
 
 def parse_args() -> argparse.Namespace:
-
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-a', '--audio-processor',
@@ -33,17 +33,27 @@ def parse_args() -> argparse.Namespace:
         action='store',
 	)
     parser.add_argument(
-			'-v', '--verbosity-level',
-			help='Verbosity level.',
-			dest='verbosity_level',
+			'-l', '--verbosity-file',
+			help='File logging verbosity level.',
+			dest='verbosity_level_file',
             required=False,
 			action='store',
             default='info',
             choices=['debug','info','warning','error','critical'],
 	)
+    parser.add_argument(
+			'-v', '--verbosity-console',
+			help='Console logging verbosity level.',
+			dest='verbosity_level_console',
+            required=False,
+			action='store',
+            default='warning',
+            choices=['debug','info','warning','error','critical'],
+	)
     return parser.parse_args()
 
 def run() -> int:
+    """Main entry point for camek CLI application."""
     args = parse_args()
 
     try:
@@ -51,7 +61,8 @@ def run() -> int:
             aproc_conf=args.aproc_conf,
             isrc_conf=args.isrc_conf,
             osnk_conf=args.osnk_conf,
-            verbosity_level=args.verbosity_level,
+            verbosity_level_console=args.verbosity_level_console,
+            verbosity_level_file=args.verbosity_level_file,
             )
     except CamekError as e:
         return 1
