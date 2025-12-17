@@ -26,17 +26,17 @@ class AppEngine():
             submodules_list=self.conf['configurations']['proc']['_submodules'],
             conf_relpath=self.conf['configurations']['proc']['_conf_relpath'])
         pass
-        # if self.conf['isrc']['type'] == 'file':
-        #     self.audio_in = iofile.AppEngineInputEntireFile(self.conf['configurations'])
-        # elif self.conf['isrc']['type'] == 'chunkedfile':
-        #     self.audio_in = iofile.AppEngineInputChunkedFile(self.conf['isrc'])
-        # #elif self.conf['isrc']['type'] == 'device':
-        # #    self.audio_in = iofile.AppEngineInputDevice(self.conf['isrc'])
-        # else:
-        #     # critical error
-        #     msg = f"Unexpected input source type: {self.conf['isrc']['type']}"
-        #     module_logger.critical(msg)
-        #     raise CamekError(msg)
+        if self.conf['configurations']['isrc']['type'] == 'file':
+            self.audio_in = iofile.AppEngineInputEntireFile(self.conf['configurations'])
+        elif self.conf['isrc']['type'] == 'chunkedfile':
+            self.audio_in = iofile.AppEngineInputChunkedFile(self.conf['configurations'])
+        #elif self.conf['isrc']['type'] == 'device':
+        #    self.audio_in = iofile.AppEngineInputDevice(self.conf['configurations'])
+        else:
+            # critical error
+            msg = f"Unexpected input source type: {self.conf['configurations']['isrc']['type']}"
+            module_logger.critical(msg)
+            raise CamekError(msg)
 
         # if self.conf['osnk']['type'] == 'file':
         #     self.audio_out = iofile.AppEngineOutputEntireFile(self.conf['osnk'])
