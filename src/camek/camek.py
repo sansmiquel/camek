@@ -18,6 +18,7 @@ module_logger = camek_logging.get_logger(__name__)
 
 # -------------------------------------------------------------------------
 def main(
+        top_module: str,
         topl_conf: str, 
         isrc_conf: str, 
         osnk_conf: str, 
@@ -45,6 +46,7 @@ def main(
     from camek.appengine.appengine import AppEngine as AppEngine
     try:
         AppEngine(
+            top_module=top_module,
             topl_conf=pathlib.Path(topl_conf),
             isrc_conf=pathlib.Path(isrc_conf),
             osnk_conf=pathlib.Path(osnk_conf),

@@ -68,6 +68,7 @@ def run() -> int:
 
     try:
         main(
+            top_module=args.top_module[0],
             topl_conf=args.topl_conf,
             isrc_conf=args.isrc_conf,
             osnk_conf=args.osnk_conf,
