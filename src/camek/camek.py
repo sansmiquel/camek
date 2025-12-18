@@ -43,7 +43,7 @@ def main(
     msg = "Processing aborted due to previous error(s)."
     start_time = time.time()
     from camek.exceptions import CamekError as CamekError
-    from camek.appengine.appengine import AppEngine as AppEngine
+    from camek.appengine import AppEngine as AppEngine
     try:
         AppEngine(
             top_module=top_module,

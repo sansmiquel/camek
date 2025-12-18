@@ -7,7 +7,7 @@ module_logger = camek_logging.get_logger(__name__)
 import camek.modules.builtin.io as io
 
 script_path = pathlib.Path(__file__).absolute()
-modules_path = script_path.joinpath(script_path.parent.parent,"modules","custom")
+modules_path = script_path.joinpath(script_path.parent,"modules","custom")
 topmodules_path = modules_path.joinpath("top")
 
 class AppEngine():
