@@ -7,10 +7,11 @@ from camek.exceptions import CamekError as CamekError
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser()
+
     parser.add_argument(
-        '-p', '--proc-config',
-        help='Audio application engine processing configuration file.',
-        dest='proc_conf',
+        '-t', '--top-config',
+        help='Top-level processing module configuration file.',
+        dest='topl_conf',
         required=True,
         default=None,
         action='store',
@@ -18,7 +19,7 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument(
         '-i', '--in-config',
-        help='Audio application engine input source configuration file.',
+        help='Input source module configuration file.',
         dest='isrc_conf',
         required=True,
         default=None,
@@ -26,7 +27,7 @@ def parse_args() -> argparse.Namespace:
 	)
     parser.add_argument(
         '-o', '--out-config',
-        help='Audio application engine output sink configuration file.',
+        help='Output sink module configuration file.',
         dest='osnk_conf',
         required=True,
         default=None,
@@ -50,6 +51,15 @@ def parse_args() -> argparse.Namespace:
             default='warning',
             choices=['debug','info','warning','error','critical'],
 	)
+
+    parser.add_argument(
+        "top_module",
+        help=f"Top level processing module.",
+        action="store",
+        nargs=1,
+        type=str,
+        metavar="TOPMODULE")
+    
     return parser.parse_args()
 
 def run() -> int:
@@ -58,7 +68,7 @@ def run() -> int:
 
     try:
         main(
-            proc_conf=args.proc_conf,
+            topl_conf=args.topl_conf,
             isrc_conf=args.isrc_conf,
             osnk_conf=args.osnk_conf,
             verbosity_level_console=args.verbosity_level_console,

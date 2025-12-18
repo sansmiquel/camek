@@ -18,7 +18,7 @@ module_logger = camek_logging.get_logger(__name__)
 
 # -------------------------------------------------------------------------
 def main(
-        proc_conf: str, 
+        topl_conf: str, 
         isrc_conf: str, 
         osnk_conf: str, 
         verbosity_level_console: str='warning',
@@ -45,7 +45,7 @@ def main(
     from camek.appengine.appengine import AppEngine as AppEngine
     try:
         AppEngine(
-            proc_conf=pathlib.Path(proc_conf),
+            topl_conf=pathlib.Path(topl_conf),
             isrc_conf=pathlib.Path(isrc_conf),
             osnk_conf=pathlib.Path(osnk_conf),
             )
