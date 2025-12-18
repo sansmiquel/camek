@@ -11,7 +11,15 @@ modules_path = script_path.joinpath(script_path.parent,"modules","custom")
 topmodules_path = modules_path.joinpath("top")
 
 class AppEngine():
-    def __init__(self, top_module: str, topl_conf: pathlib.Path, isrc_conf: pathlib.Path, osnk_conf: pathlib.Path):
+    def __init__(
+            self,
+            top_module: str,
+            topl_conf: pathlib.Path,
+            isrc_conf: pathlib.Path,
+            osnk_conf: pathlib.Path,
+            in_type: str='file',
+            out_type: str='file',
+            ):
         try:
             spec = importlib.util.spec_from_file_location(top_module, topmodules_path.joinpath( top_module + ".py"))
             module = importlib.util.module_from_spec(spec)
@@ -25,9 +33,26 @@ class AppEngine():
             'isrc': isrc_conf.absolute(),  # input source module configuration
             'osnk': osnk_conf.absolute(),  # output sink module configuration
         }
-
-        self.audioIn = io.AudioInput(self.conf['isrc'])
-        self.audioOut = io.AudioOutput(self.conf['osnk'])
+        if in_type == 'file':
+            self.audioIn = io.AudioFileIn(self.conf['isrc'])
+        elif in_type == 'chunkedfile':            
+            self.audioIn = io.AudioChunkedFileIn(self.conf['isrc'])
+        #elif in_type == 'device':
+        #    pass
+        else:
+            msg = "Unsupported audio input type."
+            module_logger.critical(msg)        
+            raise CamekError(msg)                
+        if out_type == 'file':
+            self.audioIn = io.AudioFileOut(self.conf['osnk'])
+        elif out_type == 'chunkedfile':            
+            self.audioIn = io.AudioChunkedFileOut(self.conf['osnk'])
+        #elif in_type == 'device':
+        #    pass
+        else:
+            msg = "Unsupported audio output type."
+            module_logger.critical(msg)        
+            raise CamekError(msg)                
         self.topLevelProcessing = module.Top(self.conf['topl'])
 
     def run(self):

@@ -21,7 +21,9 @@ def main(
         top_module: str,
         topl_conf: str, 
         isrc_conf: str, 
-        osnk_conf: str, 
+        osnk_conf: str,
+        in_type: str='file', 
+        out_type: str='file', 
         verbosity_level_console: str='warning',
         verbosity_level_file: str='info',
         ) -> None:
@@ -50,6 +52,8 @@ def main(
             topl_conf=pathlib.Path(topl_conf),
             isrc_conf=pathlib.Path(isrc_conf),
             osnk_conf=pathlib.Path(osnk_conf),
+            in_type=in_type,
+            out_type=out_type,
             )
     except CamekError as e:
         module_logger.critical(msg)

@@ -33,6 +33,27 @@ def parse_args() -> argparse.Namespace:
         default=None,
         action='store',
 	)
+
+    parser.add_argument(
+        '-I', '--in-type',
+        help='Input source type.',
+        dest='in_type',
+        required=False,
+        default='file',
+        choices=['file','chunkedfile','device'],
+        action='store',
+	)
+
+    parser.add_argument(
+        '-O', '--out-type',
+        help='Output source type.',
+        dest='out_type',
+        required=False,
+        default='file',
+        choices=['file','chunkedfile','device'],
+        action='store',
+	)
+
     parser.add_argument(
 			'-l', '--verbosity-file',
 			help='File logging verbosity level.',
@@ -72,6 +93,8 @@ def run() -> int:
             topl_conf=args.topl_conf,
             isrc_conf=args.isrc_conf,
             osnk_conf=args.osnk_conf,
+            out_type=args.out_type,
+            in_type=args.in_type,
             verbosity_level_console=args.verbosity_level_console,
             verbosity_level_file=args.verbosity_level_file,
             )
