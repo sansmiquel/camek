@@ -5,7 +5,7 @@ import datetime
 import pathlib
 
 class ModuleFilter(logging.Filter):
-    def __init__(self,module_name=str):
+    def __init__(self,module_name: str):
         super().__init__()
         self.module_name = module_name
 
@@ -13,7 +13,7 @@ class ModuleFilter(logging.Filter):
         return record.name == self.module_name
 
 class ModuleMessageFilter(logging.Filter):
-    def __init__(self,module_name=str, msg_pattern=str):
+    def __init__(self,module_name: str, msg_pattern: str):
         super().__init__()
         self.module_name = module_name
         self.parityfile_regex =   re.compile(msg_pattern)
@@ -27,7 +27,12 @@ def get_logger(module_name=None) -> logging.Logger:
     else:
         return logging.getLogger()
 
-def configure(main_logger=logging.Logger, verbosity_level_console=str, verbosity_level_file=str, log_path=pathlib.Path) -> None:
+def configure(
+        main_logger: logging.Logger,
+        verbosity_level_console: str,
+        verbosity_level_file: str,
+        log_path: pathlib.Path,
+        ) -> None:
 
     main_logger.setLevel(logging.DEBUG)
 

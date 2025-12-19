@@ -11,7 +11,7 @@ import numpy as np
 import soundfile as sf
 
 class AudioIo(Module):
-    def __init__(self,conf_relpath=pathlib.Path):
+    def __init__(self,conf_relpath: pathlib.Path):
        super().__init__(conf_relpath=conf_relpath)
        self.direction = None  # ['input', 'output']
        self.type = None  # ['file', 'chunkedfile','device']
@@ -28,44 +28,52 @@ class AudioIo(Module):
 
 class AudioFileIo(AudioIo):
 
-    def __init__(self,conf_relpath=pathlib.Path):
+    def __init__(self,conf_relpath: pathlib.Path, req_nchan: int, req_sr: int):
         super().__init__(conf_relpath=conf_relpath)  
+        self.req_nchan = req_nchan
+        self.req_sr = req_sr
         self.nchan = self.conf["nchan"]
-        self.nchan = self.conf["nchan"]
+        if self.req_nchan != self.nchan:
+            msg = f"Channel number configuration mismatch: top-level module conf: {self.req_nchan}, audio module conf: {self.nchan}"
+            raise CamekError(msg)
+        self.conf_relpath = self.conf["conf_relpath"]
+        self.conf_stem = self.conf["conf_stem"]
+        self.conf_suffix = self.conf["conf_suffix"]
+        self.file_prefix = self.conf["file_prefix"]
+        self.file_format = self.conf["file_format"]
+        self.subtype = self.conf["subtype"]
+        self.fptr = list()
+        self.metadata = list()
         self._get_files()
 
     def _close_files(self):
         [f.close for f in self.fptr]
+
     def _get_files(self) -> None:
         p = pathlib.Path(
-            *self.conf["conf_relpath"],
-            self.conf["conf_stem"]+self.conf["conf_suffix"]).resolve()
+            *self.conf_relpath,
+            self.conf_stem+self.conf_suffix).resolve()
         conf = utils.read_conf(p)
         self.files_list = []
         for k in range(0,self.nchan):
             self.files_list.append(
-                pathlib.Path(*conf['path'],self.conf["file_prefix"] + f"{k}." + self.conf["file_format"]))
+                pathlib.Path(*conf['path'],self.file_prefix + f"{k}." + self.file_format))
         return None
     
     def _check_metadata(self) -> None:
-        nchan_err = False
         sr_err = False
         nsamples_err = False
         for k, elem in enumerate(self.metadata[1:]):
-            if elem['nchan'] != self.metadata[k-1]['nchan']:
-                nchan_err = True
-                msg = f"Mismatch, channels number: {self.files_list[k-1]} : {self.metadata[k-1]['nchan']},  {self.files_list[k]} : {elem['nchan']}"
-                module_logger.error(msg)
-            if elem['sr'] != self.metadata[k-1]['sr']:
+            if elem['sr'] != self.req_sr :
                 sr_err = True
-                msg = f"Mismatch, sample rate: {self.files_list[k-1]} : {self.metadata[k-1]['sr']},  {self.files_list[k]} : {elem['sr']}"
+                msg = f"Mismatch, sample rate: file {self.files_list[k-1]} : {self.metadata[k-1]['sr']},  top-level module conf: {elem['sr']}"
                 module_logger.error(msg)
             if elem['nsamples'] != self.metadata[k-1]['nsamples']:
                 nsamples_err = True
-                msg = f"Mismatch, sampless number: {self.files_list[k-1]} : {self.metadata[k-1]['nsamples']},  {self.files_list[k]} : {elem['nsamples']}"
+                msg = f"Mismatch, sampless number: file {self.files_list[k-1]} : {self.metadata[k-1]['nsamples']},  file {self.files_list[k]} : {elem['nsamples']}"
                 module_logger.error(msg)
-        if nchan_err or sr_err or nsamples_err:
-            msg = f"Metadata mismatch ({self.direction}) files: chan nb: {nchan_err},  samples nb: {nsamples_err},  sample rate num: {sr_err}. "
+        if sr_err or nsamples_err:
+            msg = f"Metadata mismatch ({self.direction}) files: samples nb: {nsamples_err},  sample rate num: {sr_err}. "
             module_logger.critical(msg)
             self._close_files()
             raise CamekError(msg)
@@ -84,21 +92,23 @@ class AudioFileIo(AudioIo):
         pass
 
 class AudioFileIn(AudioFileIo):
-    def __init__(self,conf_relpath=pathlib.Path):
-        super().__init__(conf_relpath=conf_relpath)  
+    def __init__(self,conf_relpath: pathlib.Path, req_nchan: int, req_sr: int):
+        super().__init__(conf_relpath=conf_relpath, req_nchan=req_nchan, req_sr=req_sr)  
         if self.conf['type'] != 'file':
             msg = f"Invalid audio input module configuration: Expected type 'file', got {self.conf['type']}"
             module_logger.critical(msg)        
             raise CamekError(msg)
         self.type = 'file'
+        self.direction = 'input'
         self._init_src()   
 
     def _init_src(self):
-        self.fptr = list()
-        self.metadata = list()
         for p in self.files_list:
             f = sf.SoundFile(str(p),'r')
-            self.metadata.append({'sr': f.samplerate, 'nsamples': f.frames, 'nchan': f.channels})
+            if f.channels != 1:
+                msg = f"Ambiguity found: more than 1 channel found in file: {p}"
+                raise CamekError(e)
+            self.metadata.append({'sr': f.samplerate, 'nsamples': f.frames})
             self.fptr.append(f)
         self._check_metadata()
 
@@ -108,13 +118,14 @@ class AudioFileIn(AudioFileIo):
         pass
 
 class AudioChunkedFileIn(AudioFileIo):
-    def __init__(self,conf_relpath=pathlib.Path):
-        super().__init__(conf_relpath=conf_relpath)  
+    def __init__(self,conf_relpath: pathlib.Path, req_nchan: int, req_sr: int):
+        super().__init__(conf_relpath=conf_relpath, req_nchan=req_nchan, req_sr=req_sr)   
         if self.conf['type'] != 'chunkedfile':
             msg = f"Invalid audio input module configuration: Expected type 'chunkedfile', got {self.conf['type']}"
             module_logger.critical(msg)        
             raise CamekError(msg)
-        self.type = 'chunkedfile'   
+        self.type = 'chunkedfile'
+        self.direction = 'input'   
     def _init_src(self):
         pass
     def get_status(self):
@@ -123,28 +134,38 @@ class AudioChunkedFileIn(AudioFileIo):
         pass
 
 class AudioFileOut(AudioFileIo):
-    def __init__(self,conf_relpath=pathlib.Path):
-        super().__init__(conf_relpath=conf_relpath)  
+    def __init__(self,conf_relpath: pathlib.Path, req_nchan: int, req_sr: int):
+        super().__init__(conf_relpath=conf_relpath, req_nchan=req_nchan, req_sr=req_sr)
         if self.conf['type'] != 'file':
             msg = f"Invalid audio input module configuration: Expected type 'file', got {self.conf['type']}"
             module_logger.critical(msg)        
             raise CamekError(msg)
-        self.type = 'file'   
+        self.type = 'file'
+        self.direction = 'output'   
     def _init_src(self):
-        pass
+        for p in self.files_list:
+            f = sf.SoundFile(
+                str(p),
+                'w',
+                channels=1,
+                samplerate=self.req_sr,
+                subtype=self.subtype,
+                )
+            self.fptr.append(f)
     def get_status(self):
         pass
     def cycle(self):
         pass
 
 class AudioChunkedFileOut(AudioFileIo):
-    def __init__(self,conf_relpath=pathlib.Path):
-        super().__init__(conf_relpath=conf_relpath)  
+    def __init__(self,conf_relpath: pathlib.Path, req_nchan: int, req_sr: int):
+        super().__init__(conf_relpath=conf_relpath, req_nchan=req_nchan, req_sr=req_sr)   
         if self.conf['type'] != 'file':
             msg = f"Invalid audio input module configuration: Expected type 'chunkedfile', got {self.conf['type']}"
             module_logger.critical(msg)        
             raise CamekError(msg)
-        self.type = 'chunkedfile'   
+        self.type = 'chunkedfile'
+        self.direction = 'output'      
     def _init_src(self):
         pass
     def get_status(self):

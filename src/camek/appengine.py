@@ -35,31 +35,39 @@ class AppEngine():
             'isrc': isrc_conf.absolute(),  # input source module configuration
             'osnk': osnk_conf.absolute(),  # output sink module configuration
         }
+        # top level processing module
+        self.topLevelProcessing = module.TopLevelProcessingModule(conf_relpath=self.conf['topl'])
+
+        # top level audio input source module
+        nchan, sr, framelen, datatype = self.topLevelProcessing.get_formats_in()
         if self.in_type == 'file':
-            self.audioIn = io.AudioFileIn(self.conf['isrc'])
+            self.audioIn = io.AudioFileIn(conf_relpath=self.conf['isrc'], req_nchan=nchan, req_sr=sr)
         elif self.in_type == 'chunkedfile':            
-            self.audioIn = io.AudioChunkedFileIn(self.conf['isrc'])
+            self.audioIn = io.AudioChunkedFileIn(conf_relpath=self.conf['isrc'], req_nchan=nchan, req_sr=sr)
         #elif self.in_type == 'device':
         #    pass
         else:
             msg = "Unsupported audio input type."
             module_logger.critical(msg)        
-            raise CamekError(msg)                
+            raise CamekError(msg)           
+             
+        # top level audio output sink module
+        nchan, sr, framelen, datatype = self.topLevelProcessing.get_formats_out()
         if self.out_type == 'file':
-            self.audioOut = io.AudioFileOut(self.conf['osnk'])
+            self.audioOut = io.AudioFileOut(conf_relpath=self.conf['osnk'], req_nchan=nchan, req_sr=sr)
         elif self.out_type == 'chunkedfile':            
-            self.audioOut = io.AudioChunkedFileOut(self.conf['osnk'])
+            self.audioOut = io.AudioChunkedFileOut(conf_relpath=self.conf['osnk'], req_nchan=nchan, req_sr=sr)
         #elif self.out_type == 'device':
         #    pass
         else:
             msg = "Unsupported audio output type."
             module_logger.critical(msg)        
             raise CamekError(msg)                
-        self.topLevelProcessing = module.Top(self.conf['topl'])
+
 
     def terminate(self):
         self.audioIn.terminate()
-        #self.audioOut.terminate() # FIXME
+        self.audioOut.terminate() # FIXME
     
     def run(self):
         pass
