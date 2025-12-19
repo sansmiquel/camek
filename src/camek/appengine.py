@@ -41,9 +41,9 @@ class AppEngine():
         # top level audio input source module
         nchan, sr, framelen, datatype = self.topLevelProcessing.get_formats_in()
         if self.in_type == 'file':
-            self.audioIn = io.AudioFileIn(conf_relpath=self.conf['isrc'], req_nchan=nchan, req_sr=sr)
+            self.audioIn = io.AudioFileIn(conf_relpath=self.conf['isrc'], nchan=nchan, sr=sr)
         elif self.in_type == 'chunkedfile':            
-            self.audioIn = io.AudioChunkedFileIn(conf_relpath=self.conf['isrc'], req_nchan=nchan, req_sr=sr)
+            self.audioIn = io.AudioChunkedFileIn(conf_relpath=self.conf['isrc'], nchan=nchan, sr=sr)
         #elif self.in_type == 'device':
         #    pass
         else:
@@ -54,9 +54,9 @@ class AppEngine():
         # top level audio output sink module
         nchan, sr, framelen, datatype = self.topLevelProcessing.get_formats_out()
         if self.out_type == 'file':
-            self.audioOut = io.AudioFileOut(conf_relpath=self.conf['osnk'], req_nchan=nchan, req_sr=sr)
+            self.audioOut = io.AudioFileOut(conf_relpath=self.conf['osnk'], nchan=nchan, sr=sr)
         elif self.out_type == 'chunkedfile':            
-            self.audioOut = io.AudioChunkedFileOut(conf_relpath=self.conf['osnk'], req_nchan=nchan, req_sr=sr)
+            self.audioOut = io.AudioChunkedFileOut(conf_relpath=self.conf['osnk'], nchan=nchan, sr=sr)
         #elif self.out_type == 'device':
         #    pass
         else:
