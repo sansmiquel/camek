@@ -5,7 +5,6 @@ import camek.utils as utils
 import camek.logging as camek_logging
 module_logger = camek_logging.get_logger(__name__)
 import pathlib
-import json
 import math
 import numpy as np
 import soundfile as sf
@@ -20,6 +19,9 @@ class AudioIo(Module):
     def get_status(self):
         pass
     @abstractmethod
+    def get_output(self):
+        pass
+    @abstractmethod
     def cycle(self):
         pass
     @abstractmethod
@@ -28,10 +30,12 @@ class AudioIo(Module):
 
 class AudioFileIo(AudioIo):
 
-    def __init__(self,conf_relpath: pathlib.Path, nchan: int, sr: int):
+    def __init__(self,conf_relpath: pathlib.Path, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
         super().__init__(conf_relpath=conf_relpath)  
         self.nchan = nchan
         self.sr = sr
+        self.frame_len = frame_len
+        self.dtype = data_type
         if self.nchan != self.conf["nchan"]:
             msg = f"Channel number configuration mismatch: top-level module conf: {self.nchan}, audio module conf: {self.conf["nchan"]}"
             raise CamekError(msg)
@@ -44,6 +48,7 @@ class AudioFileIo(AudioIo):
         self.fptr = list()
         self.metadata = list()
         self._get_files()
+        self.frame = np.zeros([self.nchan,self.frame_len])  # FIXME: type should be specified
 
     def _close_files(self):
         [f.close for f in self.fptr]
@@ -84,6 +89,9 @@ class AudioFileIo(AudioIo):
     def _init_src(self):
         pass
     @abstractmethod
+    def get_output(self):
+        pass
+    @abstractmethod
     def get_status(self):
         pass
     @abstractmethod
@@ -91,14 +99,16 @@ class AudioFileIo(AudioIo):
         pass
 
 class AudioFileIn(AudioFileIo):
-    def __init__(self,conf_relpath: pathlib.Path, nchan: int, sr: int):
-        super().__init__(conf_relpath=conf_relpath, nchan=nchan, sr=sr)  
+    def __init__(self,conf_relpath: pathlib.Path, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
+        super().__init__(conf_relpath=conf_relpath, nchan=nchan, sr=sr, frame_len=frame_len, data_type=data_type)  
         if self.conf['type'] != 'file':
             msg = f"Invalid audio input module configuration: Expected type 'file', got {self.conf['type']}"
             module_logger.critical(msg)        
             raise CamekError(msg)
         self.type = 'file'
         self.direction = 'input'
+        self.sample_idx = -self.frame_len
+        self.frame_idx = -1
         self._init_src()   
 
     def _init_src(self):
@@ -112,16 +122,32 @@ class AudioFileIn(AudioFileIo):
             self.metadata.append({'sr': f.samplerate, 'nsamples': f.frames})
             self.fptr.append(f)
         self._check_metadata()
-        self.nsamples = self.metadata[0]['nsamples'] 
+        self.nsamples = math.floor(self.metadata[0]['nsamples'] / self.frame_len) * self.frame_len
 
-    def get_status(self):
-        pass
-    def cycle(self):
-        pass
+    def get_status(self) -> bool:
+        return (
+            self.sample_idx + self.frame_len < self.nsamples,
+            self.sample_idx,
+            self.frame_idx,
+        )
+    def get_output(self) -> np.array:
+        return self.frame
+    def cycle(self) -> None:
+        self.sample_idx += self.frame_len
+        self.frame_idx +=1
+        for k in range(0,self.nchan):
+            self.frame[k,:] = self.fptr[k].read(
+                frames=self.frame_len,
+                dtype=self.dtype,
+                always_2d=False,
+                fill_value=None,
+                out=None
+            )
+        return None
 
 class AudioChunkedFileIn(AudioFileIo):
-    def __init__(self,conf_relpath: pathlib.Path, nchan: int, sr: int):
-        super().__init__(conf_relpath=conf_relpath, nchan=nchan, sr=sr)   
+    def __init__(self,conf_relpath: pathlib.Path, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
+        super().__init__(conf_relpath=conf_relpath, nchan=nchan, sr=sr, frame_len=frame_len, data_type=data_type)   
         if self.conf['type'] != 'chunkedfile':
             msg = f"Invalid audio input module configuration: Expected type 'chunkedfile', got {self.conf['type']}"
             module_logger.critical(msg)        
@@ -132,12 +158,14 @@ class AudioChunkedFileIn(AudioFileIo):
         pass
     def get_status(self):
         pass
+    def get_output(self):
+        pass
     def cycle(self):
         pass
 
 class AudioFileOut(AudioFileIo):
-    def __init__(self,conf_relpath: pathlib.Path, nchan: int, sr: int):
-        super().__init__(conf_relpath=conf_relpath, nchan=nchan, sr=sr)
+    def __init__(self,conf_relpath: pathlib.Path, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
+        super().__init__(conf_relpath=conf_relpath, nchan=nchan, sr=sr, frame_len=frame_len, data_type=data_type)
         if self.conf['type'] != 'file':
             msg = f"Invalid audio input module configuration: Expected type 'file', got {self.conf['type']}"
             module_logger.critical(msg)        
@@ -156,12 +184,14 @@ class AudioFileOut(AudioFileIo):
             self.fptr.append(f)
     def get_status(self):
         pass
+    def get_output(self):
+        pass
     def cycle(self):
         pass
 
 class AudioChunkedFileOut(AudioFileIo):
-    def __init__(self,conf_relpath: pathlib.Path, nchan: int, sr: int):
-        super().__init__(conf_relpath=conf_relpath, nchan=nchan, sr=sr)   
+    def __init__(self,conf_relpath: pathlib.Path, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
+        super().__init__(conf_relpath=conf_relpath, nchan=nchan, sr=sr, frame_len=frame_len, data_type=data_type)   
         if self.conf['type'] != 'file':
             msg = f"Invalid audio input module configuration: Expected type 'chunkedfile', got {self.conf['type']}"
             module_logger.critical(msg)        
@@ -171,6 +201,8 @@ class AudioChunkedFileOut(AudioFileIo):
     def _init_src(self):
         pass
     def get_status(self):
+        pass
+    def get_output(self):
         pass
     def cycle(self):
         pass

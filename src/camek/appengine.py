@@ -39,11 +39,23 @@ class AppEngine():
         self.topLevelProcessing = module.TopLevelProcessingModule(conf_relpath=self.conf['topl'])
 
         # top level audio input source module
-        nchan, sr, framelen, datatype = self.topLevelProcessing.get_formats_in()
+        nchan, sr, frame_len, data_type = self.topLevelProcessing.get_formats_in()
         if self.in_type == 'file':
-            self.audioIn = io.AudioFileIn(conf_relpath=self.conf['isrc'], nchan=nchan, sr=sr)
+            self.audioIn = io.AudioFileIn(
+                conf_relpath=self.conf['isrc'],
+                nchan=nchan,
+                sr=sr,
+                frame_len=frame_len,
+                data_type=data_type,
+                )
         elif self.in_type == 'chunkedfile':            
-            self.audioIn = io.AudioChunkedFileIn(conf_relpath=self.conf['isrc'], nchan=nchan, sr=sr)
+            self.audioIn = io.AudioChunkedFileIn(
+                conf_relpath=self.conf['isrc'],
+                nchan=nchan,
+                sr=sr,
+                frame_len=frame_len,
+                data_type=data_type,
+                )
         #elif self.in_type == 'device':
         #    pass
         else:
@@ -52,11 +64,23 @@ class AppEngine():
             raise CamekError(msg)           
              
         # top level audio output sink module
-        nchan, sr, framelen, datatype = self.topLevelProcessing.get_formats_out()
+        nchan, sr, frame_len, data_type = self.topLevelProcessing.get_formats_out()
         if self.out_type == 'file':
-            self.audioOut = io.AudioFileOut(conf_relpath=self.conf['osnk'], nchan=nchan, sr=sr)
+            self.audioOut = io.AudioFileOut(
+                conf_relpath=self.conf['osnk'],
+                nchan=nchan,
+                sr=sr,
+                frame_len=frame_len,
+                data_type=data_type,
+                )
         elif self.out_type == 'chunkedfile':            
-            self.audioOut = io.AudioChunkedFileOut(conf_relpath=self.conf['osnk'], nchan=nchan, sr=sr)
+            self.audioOut = io.AudioChunkedFileOut(
+                conf_relpath=self.conf['osnk'],
+                nchan=nchan,
+                sr=sr,
+                frame_len=frame_len,
+                data_type=data_type,
+                )
         #elif self.out_type == 'device':
         #    pass
         else:
@@ -70,4 +94,23 @@ class AppEngine():
         self.audioOut.terminate() # FIXME
     
     def run(self):
-        pass
+        process_data = True
+        while(process_data):
+
+            # top-level input source module
+            self.audioIn.cycle()
+            self.audioIn.get_output()
+            process_data, sample_idx, frame_idx = self.audioIn.get_status()
+            print(f"{frame_idx} {sample_idx} {process_data}")
+
+            # top-level processing module
+            self.topLevelProcessing.cycle()
+            self.topLevelProcessing.get_output()
+            self.topLevelProcessing.get_status()
+
+            # top-level output sink module
+            self.audioOut.cycle()
+            self.audioOut.get_output()
+            self.audioOut.get_status()
+
+        

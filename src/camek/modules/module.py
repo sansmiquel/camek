@@ -7,6 +7,9 @@ class Module(ABC):
         self.conf = utils.read_conf(p=conf_relpath.resolve())
 
     @abstractmethod
+    def get_status(self) -> None:
+        pass
+    @abstractmethod
     def cycle(self) -> None:
         pass
 
@@ -25,6 +28,12 @@ class TopModule(Module):
     def get_formats_out(self) -> tuple:
         return (self.nchan_in, self.sr_in, self.frame_len, self.dtype)
 
+    @abstractmethod
+    def get_status(self) -> None:
+        pass
+    @abstractmethod
+    def get_output(self) -> None:
+        pass
     @abstractmethod
     def cycle(self) -> None:
         pass
