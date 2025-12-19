@@ -15,6 +15,9 @@ class AudioIo(Module):
        self.direction = None  # ['input', 'output']
        self.type = None  # ['file', 'chunkedfile','device']
 
+    def _close_files(self):
+        [f.close for f in self.fptr]
+
     @abstractmethod
     def get_status(self):
         pass
@@ -24,9 +27,8 @@ class AudioIo(Module):
     @abstractmethod
     def cycle(self):
         pass
-    @abstractmethod
     def terminate(self):
-        pass
+        self._close_files()
 
 class AudioFileIo(AudioIo):
 
@@ -49,9 +51,6 @@ class AudioFileIo(AudioIo):
         self.metadata = list()
         self._get_files()
         self.frame = np.zeros([self.nchan,self.frame_len])  # FIXME: type should be specified
-
-    def _close_files(self):
-        [f.close for f in self.fptr]
 
     def _get_files(self) -> None:
         p = pathlib.Path(
@@ -82,9 +81,6 @@ class AudioFileIo(AudioIo):
             self._close_files()
             raise CamekError(msg)
         
-    def terminate(self):
-        self._close_files()
-
     @abstractmethod
     def _init_src(self):
         pass
@@ -124,7 +120,7 @@ class AudioFileIn(AudioFileIo):
         self._check_metadata()
         self.nsamples = math.floor(self.metadata[0]['nsamples'] / self.frame_len) * self.frame_len
 
-    def get_status(self) -> bool:
+    def get_status(self) -> tuple[bool, int, int]:
         return (
             self.sample_idx + self.frame_len < self.nsamples,
             self.sample_idx,
@@ -171,7 +167,11 @@ class AudioFileOut(AudioFileIo):
             module_logger.critical(msg)        
             raise CamekError(msg)
         self.type = 'file'
-        self.direction = 'output'   
+        self.direction = 'output'
+        self.sample_idx = -self.frame_len
+        self.frame_idx = -1 
+        self._init_src()    
+
     def _init_src(self):
         for p in self.files_list:
             f = sf.SoundFile(
@@ -182,12 +182,24 @@ class AudioFileOut(AudioFileIo):
                 subtype=self.subtype,
                 )
             self.fptr.append(f)
-    def get_status(self):
-        pass
+
+    def get_status(self) -> tuple[bool, int, int]:
+        return (
+            True,
+            self.sample_idx,
+            self.frame_idx,
+        )
+    
     def get_output(self):
         pass
-    def cycle(self):
-        pass
+
+    def cycle(self, input: np.array):
+        self.sample_idx += self.frame_len
+        self.frame_idx +=1
+        self.frame = input
+        for k in range(0,self.nchan):
+            self.fptr[k].write(self.frame[k,:])
+        return None
 
 class AudioChunkedFileOut(AudioFileIo):
     def __init__(self,conf_relpath: pathlib.Path, nchan: int, sr: int, frame_len: int, data_type: str='float64'):

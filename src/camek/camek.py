@@ -42,7 +42,7 @@ def main(
         log_path=log_path,
         )
     
-    msg = "Processing aborted due to previous error(s): "
+    
     start_time = time.time()
     from camek.exceptions import CamekError as CamekError
     from camek.appengine import AppEngine as AppEngine
@@ -56,18 +56,37 @@ def main(
             out_type=out_type,
             )
     except CamekError as e:
-        module_logger.critical(msg + f"{e}")
-        msg = "audioprocessor finished with error(s) in %s seconds." % (time.time() - start_time)
+        msg = f"Processing aborted due to previous error(s): {e}"
+        module_logger.critical(msg)
+        msg = "camek finished with error(s) in %s seconds." % (time.time() - start_time)
         module_logger.info(msg)
+        try:
+            app.terminate()
+        except CamekError as e_close_file:
+            msg = f"Closing audio input/output failed: {e_close_file}"
+            module_logger.error(msg)
         raise e
 
     # run
-    app.run()
-
+    try:
+        app.run()
+    except CamekError as e:
+        msg = f"Processing aborted due to previous error(s): {e}"
+        module_logger.critical(msg)
+        msg = "camek finished with error(s) in %s seconds." % (time.time() - start_time)
+        module_logger.info(msg)
+        raise e
+    
     # terminate & clean-up
-    app.terminate()
-
-    msg = "camek finished successfully in %s seconds." % (time.time() - start_time)
-    module_logger.info(msg)
+    try:
+        app.terminate()
+    except CamekError as e_close_file:
+        msg = f"Closing audio input/output failed: {e_close_file}"
+        module_logger.error(msg)
+        msg = "camek finished with error(s) in %s seconds." % (time.time() - start_time)
+    else:
+        msg = "camek finished successfully in %s seconds." % (time.time() - start_time)
+    finally:
+        module_logger.info(msg)
     
     return None

@@ -91,7 +91,7 @@ class AppEngine():
 
     def terminate(self):
         self.audioIn.terminate()
-        self.audioOut.terminate() # FIXME
+        self.audioOut.terminate()
     
     def run(self):
         process_data = True
@@ -99,18 +99,21 @@ class AppEngine():
 
             # top-level input source module
             self.audioIn.cycle()
-            self.audioIn.get_output()
-            process_data, sample_idx, frame_idx = self.audioIn.get_status()
-            print(f"{frame_idx} {sample_idx} {process_data}")
+            x = self.audioIn.get_output()
+            audioin_status, sample_idx, frame_idx = self.audioIn.get_status()
+            process_data = process_data and audioin_status
+            #print(f"{frame_idx} {sample_idx} {process_data} {self.audioIn.nsamples}")
 
             # top-level processing module
-            self.topLevelProcessing.cycle()
-            self.topLevelProcessing.get_output()
-            self.topLevelProcessing.get_status()
+            self.topLevelProcessing.cycle(input=x)
+            x = self.topLevelProcessing.get_output()
+            topl_status = self.topLevelProcessing.get_status()
+            process_data = process_data and topl_status
 
             # top-level output sink module
-            self.audioOut.cycle()
-            self.audioOut.get_output()
-            self.audioOut.get_status()
+            self.audioOut.cycle(input=x)
+            audioout_status, sample_idx, frame_idx = self.audioOut.get_status()
+            process_data = process_data and audioout_status
+            #print(f"{frame_idx} {sample_idx} {process_data}")
 
         
