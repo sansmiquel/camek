@@ -20,6 +20,8 @@ class AppEngine():
             in_type: str='file',
             out_type: str='file',
             ):
+        self.in_type = in_type
+        self.out_type = out_type
         try:
             spec = importlib.util.spec_from_file_location(top_module, topmodules_path.joinpath( top_module + ".py"))
             module = importlib.util.module_from_spec(spec)
@@ -33,21 +35,21 @@ class AppEngine():
             'isrc': isrc_conf.absolute(),  # input source module configuration
             'osnk': osnk_conf.absolute(),  # output sink module configuration
         }
-        if in_type == 'file':
+        if self.in_type == 'file':
             self.audioIn = io.AudioFileIn(self.conf['isrc'])
-        elif in_type == 'chunkedfile':            
+        elif self.in_type == 'chunkedfile':            
             self.audioIn = io.AudioChunkedFileIn(self.conf['isrc'])
-        #elif in_type == 'device':
+        #elif self.in_type == 'device':
         #    pass
         else:
             msg = "Unsupported audio input type."
             module_logger.critical(msg)        
             raise CamekError(msg)                
-        if out_type == 'file':
-            self.audioIn = io.AudioFileOut(self.conf['osnk'])
-        elif out_type == 'chunkedfile':            
-            self.audioIn = io.AudioChunkedFileOut(self.conf['osnk'])
-        #elif in_type == 'device':
+        if self.out_type == 'file':
+            self.audioOut = io.AudioFileOut(self.conf['osnk'])
+        elif self.out_type == 'chunkedfile':            
+            self.audioOut = io.AudioChunkedFileOut(self.conf['osnk'])
+        #elif self.out_type == 'device':
         #    pass
         else:
             msg = "Unsupported audio output type."
@@ -55,5 +57,9 @@ class AppEngine():
             raise CamekError(msg)                
         self.topLevelProcessing = module.Top(self.conf['topl'])
 
+    def terminate(self):
+        self.audioIn.terminate()
+        #self.audioOut.terminate() # FIXME
+    
     def run(self):
         pass

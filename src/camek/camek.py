@@ -47,7 +47,7 @@ def main(
     from camek.exceptions import CamekError as CamekError
     from camek.appengine import AppEngine as AppEngine
     try:
-        AppEngine(
+        app = AppEngine(
             top_module=top_module,
             topl_conf=pathlib.Path(topl_conf),
             isrc_conf=pathlib.Path(isrc_conf),
@@ -60,6 +60,12 @@ def main(
         msg = "audioprocessor finished with error(s) in %s seconds." % (time.time() - start_time)
         module_logger.info(msg)
         raise e
+
+    # run
+    app.run()
+
+    # terminate & clean-up
+    app.terminate()
 
     msg = "camek finished successfully in %s seconds." % (time.time() - start_time)
     module_logger.info(msg)
