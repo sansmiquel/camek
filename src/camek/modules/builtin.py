@@ -56,7 +56,6 @@ class AudioFileIo(AudioIo):
         self.conf_suffix = self.conf["conf_suffix"]
         self.file_prefix = self.conf["file_prefix"]
         self.file_format = self.conf["file_format"]
-        self.subtype = self.conf["subtype"]
         self.fptr = list()
         self.metadata = list()
         self._get_files()
@@ -162,6 +161,7 @@ class AudioFileOut(AudioFileIo):
         self.direction = 'output'
         self.sample_idx = -self.frame_len
         self.frame_idx = -1 
+        self.subtype = self.conf["subtype"]
         self._init_src()    
 
     def _init_src(self):
