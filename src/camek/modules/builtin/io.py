@@ -90,6 +90,7 @@ class AudioFileIn(AudioFileIo):
             msg = f"Invalid audio input module configuration: Expected type 'file', got {self.conf['type']}"
             module_logger.critical(msg)        
             raise CamekError(msg)
+        self.type = 'file'
         self._init_src()   
 
     def _init_src(self):
@@ -109,10 +110,11 @@ class AudioFileIn(AudioFileIo):
 class AudioChunkedFileIn(AudioFileIo):
     def __init__(self,conf_relpath=pathlib.Path):
         super().__init__(conf_relpath=conf_relpath)  
-        if self.conf['type'] != 'file':
+        if self.conf['type'] != 'chunkedfile':
             msg = f"Invalid audio input module configuration: Expected type 'chunkedfile', got {self.conf['type']}"
             module_logger.critical(msg)        
-            raise CamekError(msg)   
+            raise CamekError(msg)
+        self.type = 'chunkedfile'   
     def _init_src(self):
         pass
     def get_status(self):
@@ -126,7 +128,8 @@ class AudioFileOut(AudioFileIo):
         if self.conf['type'] != 'file':
             msg = f"Invalid audio input module configuration: Expected type 'file', got {self.conf['type']}"
             module_logger.critical(msg)        
-            raise CamekError(msg)   
+            raise CamekError(msg)
+        self.type = 'file'   
     def _init_src(self):
         pass
     def get_status(self):
@@ -140,7 +143,8 @@ class AudioChunkedFileOut(AudioFileIo):
         if self.conf['type'] != 'file':
             msg = f"Invalid audio input module configuration: Expected type 'chunkedfile', got {self.conf['type']}"
             module_logger.critical(msg)        
-            raise CamekError(msg)   
+            raise CamekError(msg)
+        self.type = 'chunkedfile'   
     def _init_src(self):
         pass
     def get_status(self):
