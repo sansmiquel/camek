@@ -1,14 +1,12 @@
-import pathlib
-import importlib.util
-
 from camek.exceptions import CamekError as CamekError
 import camek.logging as camek_logging
 module_logger = camek_logging.get_logger(__name__)
-import camek.modules.builtin.io as io
+import camek.modules.builtin as camek_modules
+import pathlib
+import importlib.util
 
 script_path = pathlib.Path(__file__).absolute()
-modules_path = script_path.joinpath(script_path.parent,"modules","custom")
-topmodules_path = modules_path.joinpath("top")
+topmodules_path = script_path.joinpath(script_path.parent,"modules","top")
 
 class AppEngine():
     def __init__(
@@ -41,7 +39,7 @@ class AppEngine():
         # top level audio input source module
         nchan, sr, frame_len, data_type = self.topLevelProcessing.get_formats_in()
         if self.in_type == 'file':
-            self.audioIn = io.AudioFileIn(
+            self.audioIn = camek_modules.AudioFileIn(
                 conf_relpath=self.conf['isrc'],
                 nchan=nchan,
                 sr=sr,
@@ -49,7 +47,7 @@ class AppEngine():
                 data_type=data_type,
                 )
         elif self.in_type == 'chunkedfile':            
-            self.audioIn = io.AudioChunkedFileIn(
+            self.audioIn = camek_modules.AudioChunkedFileIn(
                 conf_relpath=self.conf['isrc'],
                 nchan=nchan,
                 sr=sr,
@@ -66,7 +64,7 @@ class AppEngine():
         # top level audio output sink module
         nchan, sr, frame_len, data_type = self.topLevelProcessing.get_formats_out()
         if self.out_type == 'file':
-            self.audioOut = io.AudioFileOut(
+            self.audioOut = camek_modules.AudioFileOut(
                 conf_relpath=self.conf['osnk'],
                 nchan=nchan,
                 sr=sr,
@@ -74,7 +72,7 @@ class AppEngine():
                 data_type=data_type,
                 )
         elif self.out_type == 'chunkedfile':            
-            self.audioOut = io.AudioChunkedFileOut(
+            self.audioOut = camek_modules.AudioChunkedFileOut(
                 conf_relpath=self.conf['osnk'],
                 nchan=nchan,
                 sr=sr,

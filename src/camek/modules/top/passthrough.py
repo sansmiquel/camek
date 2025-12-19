@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from camek.modules.module import TopModule
+from camek.modules.builtin import TopModule
 import pathlib
 import math
 import numpy as np
