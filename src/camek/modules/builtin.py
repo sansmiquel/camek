@@ -23,7 +23,7 @@ class AudioIo(Module):
     def __init__(self,conf_relpath: pathlib.Path):
        super().__init__(conf_relpath=conf_relpath)
        self.direction = None  # ['input', 'output']
-       self.type = None  # ['file', 'chunkedfile','device']
+       self.type = None  # ['file', 'device']
 
     def _close_files(self):
         [f.close for f in self.fptr]
@@ -151,24 +151,6 @@ class AudioFileIn(AudioFileIo):
             )
         return None
 
-class AudioChunkedFileIn(AudioFileIo):
-    def __init__(self,conf_relpath: pathlib.Path, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
-        super().__init__(conf_relpath=conf_relpath, nchan=nchan, sr=sr, frame_len=frame_len, data_type=data_type)   
-        if self.conf['type'] != 'chunkedfile':
-            msg = f"Invalid audio input module configuration: Expected type 'chunkedfile', got {self.conf['type']}"
-            module_logger.critical(msg)        
-            raise CamekError(msg)
-        self.type = 'chunkedfile'
-        self.direction = 'input'   
-    def _init_src(self):
-        pass
-    def get_status(self):
-        pass
-    def get_output(self):
-        pass
-    def cycle(self):
-        pass
-
 class AudioFileOut(AudioFileIo):
     def __init__(self,conf_relpath: pathlib.Path, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
         super().__init__(conf_relpath=conf_relpath, nchan=nchan, sr=sr, frame_len=frame_len, data_type=data_type)
@@ -210,24 +192,6 @@ class AudioFileOut(AudioFileIo):
         for k in range(0,self.nchan):
             self.fptr[k].write(self.frame[k,:])
         return None
-
-class AudioChunkedFileOut(AudioFileIo):
-    def __init__(self,conf_relpath: pathlib.Path, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
-        super().__init__(conf_relpath=conf_relpath, nchan=nchan, sr=sr, frame_len=frame_len, data_type=data_type)   
-        if self.conf['type'] != 'file':
-            msg = f"Invalid audio input module configuration: Expected type 'chunkedfile', got {self.conf['type']}"
-            module_logger.critical(msg)        
-            raise CamekError(msg)
-        self.type = 'chunkedfile'
-        self.direction = 'output'      
-    def _init_src(self):
-        pass
-    def get_status(self):
-        pass
-    def get_output(self):
-        pass
-    def cycle(self):
-        pass
 
 class TopModule(Module):
     def __init__(self,conf_relpath: pathlib.Path):

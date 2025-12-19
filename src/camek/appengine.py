@@ -46,14 +46,6 @@ class AppEngine():
                 frame_len=frame_len,
                 data_type=data_type,
                 )
-        elif self.in_type == 'chunkedfile':            
-            self.audioIn = camek_modules.AudioChunkedFileIn(
-                conf_relpath=self.conf['isrc'],
-                nchan=nchan,
-                sr=sr,
-                frame_len=frame_len,
-                data_type=data_type,
-                )
         #elif self.in_type == 'device':
         #    pass
         else:
@@ -71,21 +63,12 @@ class AppEngine():
                 frame_len=frame_len,
                 data_type=data_type,
                 )
-        elif self.out_type == 'chunkedfile':            
-            self.audioOut = camek_modules.AudioChunkedFileOut(
-                conf_relpath=self.conf['osnk'],
-                nchan=nchan,
-                sr=sr,
-                frame_len=frame_len,
-                data_type=data_type,
-                )
         #elif self.out_type == 'device':
         #    pass
         else:
             msg = "Unsupported audio output type."
             module_logger.critical(msg)        
             raise CamekError(msg)                
-
 
     def terminate(self):
         self.audioIn.terminate()

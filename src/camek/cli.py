@@ -40,7 +40,7 @@ def parse_args() -> argparse.Namespace:
         dest='in_type',
         required=False,
         default='file',
-        choices=['file','chunkedfile','device'],
+        choices=['file', 'device'],
         action='store',
 	)
 
@@ -50,7 +50,7 @@ def parse_args() -> argparse.Namespace:
         dest='out_type',
         required=False,
         default='file',
-        choices=['file','chunkedfile','device'],
+        choices=['file', 'device'],
         action='store',
 	)
 
