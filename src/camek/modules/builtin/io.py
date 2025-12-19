@@ -22,31 +22,23 @@ class AudioIo(Module):
         pass
 
 class AudioFileIo(AudioIo):
-    def _get_files(self,
-                   conf_relpath=list,
-                   conf_stem=str,
-                   conf_suffix=str,
-                   nchan=int,
-                   file_prefix=str,
-                   file_format=str,
-                   ) -> list:
-        p = pathlib.Path(*conf_relpath,conf_stem+conf_suffix).resolve()
-        conf = utils.read_conf(p)
-        files_list = []
-        for k in range(0,nchan):
-            files_list.append(pathlib.Path(*conf['path'],file_prefix + f"{k}." + file_format))
-        return files_list
 
     def __init__(self,conf_relpath=pathlib.Path):
         super().__init__(conf_relpath=conf_relpath)  
-        self.files_list = self._get_files(
-            conf_relpath=self.conf["conf_relpath"],
-            conf_stem=self.conf["conf_stem"],
-            conf_suffix=self.conf["conf_suffix"],
-            nchan=self.conf["nchan"],
-            file_prefix=self.conf["file_prefix"],
-            file_format=self.conf["file_format"],
-        )
+        self.nchan = self.conf["nchan"]
+        self._get_files()
+
+    def _get_files(self) -> None:
+        p = pathlib.Path(
+            *self.conf["conf_relpath"],
+            self.conf["conf_stem"]+self.conf["conf_suffix"]).resolve()
+        conf = utils.read_conf(p)
+        self.files_list = []
+        for k in range(0,self.nchan):
+            self.files_list.append(
+                pathlib.Path(*conf['path'],self.conf["file_prefix"] + f"{k}." + self.conf["file_format"]))
+        return None
+    
     @abstractmethod
     def get_status(self):
         pass
