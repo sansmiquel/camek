@@ -1,3 +1,10 @@
+# Camek
+# -----
+src/modules/sub/
+src/modules/top/
+!src/modules/top/passthrough/
+
+
 # Python
 # ------
 # Byte-compiled / optimized / DLL files
