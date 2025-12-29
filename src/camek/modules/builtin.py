@@ -114,7 +114,7 @@ class AudioFileIn(AudioFileIo):
         self.direction = 'input'
         self.sample_idx = -self.frame_len
         self.frame_idx = -1
-        self._init_src()   
+        self._init_src()
 
     def _init_src(self):
         for p in self.files_list:
@@ -217,3 +217,26 @@ class TopModule(Module):
     @abstractmethod
     def cycle(self) -> None:
         pass
+
+    class SubModule(Module):
+        def __init__(self,conf_relpath: pathlib.Path):
+            self.conf = utils.read_conf(p=conf_relpath.resolve())
+            self.nchan_in = self.conf["nchan_in"]
+            self.nchan_out = self.conf["nchan_out"]
+            self.dtype = self.conf["dtype"]
+            self.frame_len = self.conf["frame_len"]
+
+        def get_formats_in(self) -> tuple:
+            return (self.nchan_in, self.sr_in, self.frame_len, self.dtype)
+        def get_formats_out(self) -> tuple:
+            return (self.nchan_in, self.sr_in, self.frame_len, self.dtype)
+
+        @abstractmethod
+        def get_status(self) -> None:
+            pass
+        @abstractmethod
+        def get_output(self) -> None:
+            pass
+        @abstractmethod
+        def cycle(self) -> None:
+            pass
