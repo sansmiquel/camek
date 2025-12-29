@@ -21,7 +21,7 @@ class AppEngine():
         self.in_type = in_type
         self.out_type = out_type
         try:
-            spec = importlib.util.spec_from_file_location(top_module, topmodules_path.joinpath( top_module + ".py"))
+            spec = importlib.util.spec_from_file_location(top_module, topmodules_path.joinpath( top_module, top_module + ".py"))
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
         except FileNotFoundError as e:
