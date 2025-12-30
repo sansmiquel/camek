@@ -42,7 +42,13 @@ class AudioIo(Module):
 
 class AudioFileIo(AudioIo):
 
-    def __init__(self, conf_relpath: list, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
+    def __init__(
+            self,
+            conf_relpath: list,
+            nchan: int,
+            sr: int,
+            frame_len: int,
+            data_type: str='float64'):
         super().__init__(conf_relpath=conf_relpath)  
         self.nchan = nchan
         self.sr = sr
@@ -104,7 +110,13 @@ class AudioFileIo(AudioIo):
         pass
 
 class AudioFileIn(AudioFileIo):
-    def __init__(self, conf_relpath: list, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
+    def __init__(
+            self,
+            conf_relpath: list,
+            nchan: int,
+            sr: int,
+            frame_len: int,
+            data_type: str='float64'):
         super().__init__(conf_relpath=conf_relpath, nchan=nchan, sr=sr, frame_len=frame_len, data_type=data_type)  
         if self.conf['type'] != 'file':
             msg = f"Invalid audio input module configuration: Expected type 'file', got {self.conf['type']}"
@@ -151,7 +163,13 @@ class AudioFileIn(AudioFileIo):
         return None
 
 class AudioFileOut(AudioFileIo):
-    def __init__(self, conf_relpath: list, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
+    def __init__(
+            self,
+            conf_relpath: list,
+            nchan: int,
+            sr: int,
+            frame_len: int,
+            data_type: str='float64'):
         super().__init__(conf_relpath=conf_relpath, nchan=nchan, sr=sr, frame_len=frame_len, data_type=data_type)
         if self.conf['type'] != 'file':
             msg = f"Invalid audio input module configuration: Expected type 'file', got {self.conf['type']}"
@@ -200,13 +218,15 @@ class TopModule(Module):
         self.nchan_out = self.conf["nchan_out"]
         self.sr_in = self.conf["sample_rate_in"]
         self.sr_out = self.conf["sample_rate_out"]
-        self.dtype = self.conf["dtype"]
-        self.frame_len = self.conf["frame_len"]
+        self.dtype_in = self.conf["dtype_in"]
+        self.dtype_out = self.conf["dtype_out"]
+        self.frame_len_in = self.conf["frame_len_in"]
+        self.frame_len_out = self.conf["frame_len_out"]
 
     def get_formats_in(self) -> tuple:
-        return (self.nchan_in, self.sr_in, self.frame_len, self.dtype)
+        return (self.nchan_in, self.sr_in, self.frame_len_in, self.dtype_in)
     def get_formats_out(self) -> tuple:
-        return (self.nchan_in, self.sr_in, self.frame_len, self.dtype)
+        return (self.nchan_out, self.sr_out, self.frame_len_out, self.dtype_out)
 
     @abstractmethod
     def get_status(self) -> None:
@@ -221,10 +241,6 @@ class TopModule(Module):
 class SubModule(Module):
     def __init__(self, conf_relpath: list):
         super().__init__(conf_relpath=conf_relpath) 
-        self.nchan_in = self.conf["nchan_in"]
-        self.nchan_out = self.conf["nchan_out"]
-        self.dtype = self.conf["dtype"]
-        self.frame_len = self.conf["frame_len"]
 
     def get_formats_in(self) -> tuple:
         return (self.nchan_in, self.sr_in, self.frame_len, self.dtype)
