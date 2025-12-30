@@ -27,12 +27,6 @@ class AppEngine():
         except FileNotFoundError as e:
             module_logger.critical(e)
             raise e
-        
-        # self.conf = {
-        #     'topl': topl_conf.absolute(),  # top-level processor module configuration
-        #     'isrc': isrc_conf.absolute(),  # input source module configuration
-        #     'osnk': osnk_conf.absolute(),  # output sink module configuration
-        # }
 
         # top level processing module
         self.topLevelProcessing = module.TopLevelProcessingModule(conf_relpath=topl_conf)

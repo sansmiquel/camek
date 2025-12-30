@@ -1,9 +1,7 @@
 ### Custom Audio Modules Engine Kit (camek) main module
 
 ## Import
-import sys
 import pathlib
-import datetime
 import time
 
 ## paths
