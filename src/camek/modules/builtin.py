@@ -13,7 +13,7 @@ class Module(ABC):
         self.conf = utils.read_conf(p=pathlib.Path(*conf_relpath).absolute().resolve())
 
     @abstractmethod
-    def get_status(self) -> None:
+    def get_status(self) -> bool:
         pass
     @abstractmethod
     def cycle(self) -> None:
@@ -29,13 +29,13 @@ class AudioIo(Module):
         [f.close for f in self.fptr]
 
     @abstractmethod
-    def get_status(self):
+    def get_status(self) -> bool:
         pass
     @abstractmethod
     def get_output(self):
         pass
     @abstractmethod
-    def cycle(self):
+    def cycle(self)-> None:
         pass
     def terminate(self):
         self._close_files()
@@ -100,13 +100,13 @@ class AudioFileIo(AudioIo):
     def _init_src(self):
         pass
     @abstractmethod
-    def get_output(self):
+    def get_output(self) -> np.array:
         pass
     @abstractmethod
-    def get_status(self):
+    def get_status(self) -> bool:
         pass
     @abstractmethod
-    def cycle(self):
+    def cycle(self) -> None:
         pass
 
 class AudioFileIn(AudioFileIo):
@@ -229,10 +229,10 @@ class TopModule(Module):
         return (self.nchan_out, self.sr_out, self.frame_len_out, self.dtype_out)
 
     @abstractmethod
-    def get_status(self) -> None:
+    def get_status(self) -> bool:
         pass
     @abstractmethod
-    def get_output(self) -> None:
+    def get_output(self) -> np.array:
         pass
     @abstractmethod
     def cycle(self) -> None:
@@ -248,10 +248,10 @@ class SubModule(Module):
         return (self.nchan_in, self.sr_in, self.frame_len, self.dtype)
 
     @abstractmethod
-    def get_status(self) -> None:
+    def get_status(self) -> bool:
         pass
     @abstractmethod
-    def get_output(self) -> None:
+    def get_output(self) -> np.array:
         pass
     @abstractmethod
     def cycle(self) -> None:
