@@ -4,7 +4,7 @@ import numpy as np
 import soundfile as sf
 
 class TopLevelProcessingModule(TopModule):
-    def __init__(self,conf_relpath: str):
+    def __init__(self,conf_relpath: list):
        super().__init__(conf_relpath=conf_relpath)
        self.output = None
     

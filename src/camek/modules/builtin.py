@@ -9,8 +9,8 @@ import numpy as np
 import soundfile as sf
 
 class Module(ABC):
-    def __init__(self,conf_relpath: str):
-        self.conf = utils.read_conf(p=pathlib.Path(conf_relpath).absolute())
+    def __init__(self, conf_relpath: list):
+        self.conf = utils.read_conf(p=pathlib.Path(*conf_relpath).absolute().resolve())
 
     @abstractmethod
     def get_status(self) -> None:
@@ -20,7 +20,7 @@ class Module(ABC):
         pass
 
 class AudioIo(Module):
-    def __init__(self,conf_relpath: str):
+    def __init__(self, conf_relpath: list):
        super().__init__(conf_relpath=conf_relpath)
        self.direction = None  # ['input', 'output']
        self.type = None  # ['file', 'device']
@@ -42,7 +42,7 @@ class AudioIo(Module):
 
 class AudioFileIo(AudioIo):
 
-    def __init__(self,conf_relpath: str, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
+    def __init__(self, conf_relpath: list, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
         super().__init__(conf_relpath=conf_relpath)  
         self.nchan = nchan
         self.sr = sr
@@ -104,7 +104,7 @@ class AudioFileIo(AudioIo):
         pass
 
 class AudioFileIn(AudioFileIo):
-    def __init__(self,conf_relpath: str, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
+    def __init__(self, conf_relpath: list, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
         super().__init__(conf_relpath=conf_relpath, nchan=nchan, sr=sr, frame_len=frame_len, data_type=data_type)  
         if self.conf['type'] != 'file':
             msg = f"Invalid audio input module configuration: Expected type 'file', got {self.conf['type']}"
@@ -151,7 +151,7 @@ class AudioFileIn(AudioFileIo):
         return None
 
 class AudioFileOut(AudioFileIo):
-    def __init__(self,conf_relpath: str, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
+    def __init__(self, conf_relpath: list, nchan: int, sr: int, frame_len: int, data_type: str='float64'):
         super().__init__(conf_relpath=conf_relpath, nchan=nchan, sr=sr, frame_len=frame_len, data_type=data_type)
         if self.conf['type'] != 'file':
             msg = f"Invalid audio input module configuration: Expected type 'file', got {self.conf['type']}"
@@ -194,9 +194,8 @@ class AudioFileOut(AudioFileIo):
         return None
 
 class TopModule(Module):
-    def __init__(self,conf_relpath: str):
+    def __init__(self, conf_relpath: list):
         super().__init__(conf_relpath=conf_relpath) 
-        #self.conf = utils.read_conf(p=conf_relpath.resolve())
         self.nchan_in = self.conf["nchan_in"]
         self.nchan_out = self.conf["nchan_out"]
         self.sr_in = self.conf["sample_rate_in"]
@@ -220,9 +219,8 @@ class TopModule(Module):
         pass
 
 class SubModule(Module):
-    def __init__(self,conf_relpath: str):
+    def __init__(self, conf_relpath: list):
         super().__init__(conf_relpath=conf_relpath) 
-        #self.conf = utils.read_conf(p=conf_relpath.resolve())
         self.nchan_in = self.conf["nchan_in"]
         self.nchan_out = self.conf["nchan_out"]
         self.dtype = self.conf["dtype"]

@@ -29,13 +29,13 @@ class AppEngine():
             raise e
 
         # top level processing module
-        self.topLevelProcessing = module.TopLevelProcessingModule(conf_relpath=topl_conf)
+        self.topLevelProcessing = module.TopLevelProcessingModule(conf_relpath=[topl_conf])
 
         # top level audio input source module
         nchan, sr, frame_len, data_type = self.topLevelProcessing.get_formats_in()
         if self.in_type == 'file':
             self.audioIn = camek_modules.AudioFileIn(
-                conf_relpath=isrc_conf,
+                conf_relpath=[isrc_conf],
                 nchan=nchan,
                 sr=sr,
                 frame_len=frame_len,
@@ -52,7 +52,7 @@ class AppEngine():
         nchan, sr, frame_len, data_type = self.topLevelProcessing.get_formats_out()
         if self.out_type == 'file':
             self.audioOut = camek_modules.AudioFileOut(
-                conf_relpath=osnk_conf,
+                conf_relpath=[osnk_conf],
                 nchan=nchan,
                 sr=sr,
                 frame_len=frame_len,
