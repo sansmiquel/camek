@@ -49,9 +49,9 @@ def main(
     try:
         app = AppEngine(
             top_module=top_module,
-            topl_conf=pathlib.Path(topl_conf),
-            isrc_conf=pathlib.Path(isrc_conf),
-            osnk_conf=pathlib.Path(osnk_conf),
+            topl_conf=topl_conf,
+            isrc_conf=isrc_conf,
+            osnk_conf=osnk_conf,
             in_type=in_type,
             out_type=out_type,
             )

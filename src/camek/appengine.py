@@ -12,9 +12,9 @@ class AppEngine():
     def __init__(
             self,
             top_module: str,
-            topl_conf: pathlib.Path,
-            isrc_conf: pathlib.Path,
-            osnk_conf: pathlib.Path,
+            topl_conf: str,
+            isrc_conf: str,
+            osnk_conf: str,
             in_type: str='file',
             out_type: str='file',
             ):
@@ -28,19 +28,20 @@ class AppEngine():
             module_logger.critical(e)
             raise e
         
-        self.conf = {
-            'topl': topl_conf.absolute(),  # top-level processor module configuration
-            'isrc': isrc_conf.absolute(),  # input source module configuration
-            'osnk': osnk_conf.absolute(),  # output sink module configuration
-        }
+        # self.conf = {
+        #     'topl': topl_conf.absolute(),  # top-level processor module configuration
+        #     'isrc': isrc_conf.absolute(),  # input source module configuration
+        #     'osnk': osnk_conf.absolute(),  # output sink module configuration
+        # }
+
         # top level processing module
-        self.topLevelProcessing = module.TopLevelProcessingModule(conf_relpath=self.conf['topl'])
+        self.topLevelProcessing = module.TopLevelProcessingModule(conf_relpath=topl_conf)
 
         # top level audio input source module
         nchan, sr, frame_len, data_type = self.topLevelProcessing.get_formats_in()
         if self.in_type == 'file':
             self.audioIn = camek_modules.AudioFileIn(
-                conf_relpath=self.conf['isrc'],
+                conf_relpath=isrc_conf,
                 nchan=nchan,
                 sr=sr,
                 frame_len=frame_len,
@@ -57,7 +58,7 @@ class AppEngine():
         nchan, sr, frame_len, data_type = self.topLevelProcessing.get_formats_out()
         if self.out_type == 'file':
             self.audioOut = camek_modules.AudioFileOut(
-                conf_relpath=self.conf['osnk'],
+                conf_relpath=osnk_conf,
                 nchan=nchan,
                 sr=sr,
                 frame_len=frame_len,
