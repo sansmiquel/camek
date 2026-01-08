@@ -28,5 +28,5 @@ test = []
 [project.scripts]
 camek = "camek.cli:run"
 [project.urls]
-homepage = "https://gitlab.com/msans/camek"
-repository = "https://github.com/sansmiquel/camek"
+homepage = "https://codeberg.org/msans/camek.git"
+repository = "https://codeberg.org/msans/camek.git"
